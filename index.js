@@ -18,6 +18,11 @@ function formatarMoeda(valor) {
 
 function gerarFaturaStr(fatura, pecas) {
 
+    // função query
+    function getPeca(apresentacao) {
+        return pecas[apresentacao.id];
+    }
+
     // função extraída
     function calcularTotalApresentacao(apre, peca) {
         let total = 0;
@@ -46,14 +51,14 @@ function gerarFaturaStr(fatura, pecas) {
     let faturaStr = `Fatura ${fatura.cliente}\n`;
 
     for (let apre of fatura.apresentacoes) {
-        const peca = pecas[apre.id];
-        const total = calcularTotalApresentacao(apre, peca);
+        // Substituímos o uso de `peca` por chamadas a `getPeca(apre)`
+        let total = calcularTotalApresentacao(apre, getPeca(apre));
 
         // créditos para próximas contratações
-        creditos += calcularCreditos(apre, peca);
+        creditos += calcularCreditos(apre, getPeca(apre));
 
         // mais uma linha da fatura
-        faturaStr += `  ${peca.nome}: ${formatarMoeda(total)} (${apre.audiencia} assentos)\n`;
+        faturaStr += `  ${getPeca(apre).nome}: ${formatarMoeda(total)} (${apre.audiencia} assentos)\n`;
         totalFatura += total;
     }
 
