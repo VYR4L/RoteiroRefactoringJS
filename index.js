@@ -8,7 +8,8 @@ function gerarFaturaStr(fatura, pecas) {
     }
 
     // função extraída
-    function calcularTotalApresentacao(apre, peca) {
+    function calcularTotalApresentacao(apre) {
+        const peca = getPeca(apre);
         let total = 0;
         switch (peca.tipo) {
             case "tragedia":
@@ -49,23 +50,23 @@ function gerarFaturaStr(fatura, pecas) {
         }).format(valor / 100);
     }
 
-    let totalFatura = 0;
-    let creditos = 0;
-    let faturaStr = `Fatura ${fatura.cliente}\n`;
-
-    for (let apre of fatura.apresentacoes) {
-        let total = calcularTotalApresentacao(apre, getPeca(apre));
-
-        // créditos para próximas contratações
-        creditos += calcularCredito(apre);
-
-        // mais uma linha da fatura
-        faturaStr += `  ${getPeca(apre).nome}: ${formatarMoeda(total)} (${apre.audiencia} assentos)\n`;
-        totalFatura += total;
+    // função extraída
+    function calcularTotalFatura() {
+        return fatura.apresentacoes.reduce((total, apre) => total + calcularTotalApresentacao(apre), 0);
     }
 
-    faturaStr += `Valor total: ${formatarMoeda(totalFatura)}\n`;
-    faturaStr += `Créditos acumulados: ${creditos} \n`;
+    // função extraída
+    function calcularTotalCreditos() {
+        return fatura.apresentacoes.reduce((total, apre) => total + calcularCredito(apre), 0);
+    }
+
+    // corpo principal
+    let faturaStr = `Fatura ${fatura.cliente}\n`;
+    for (let apre of fatura.apresentacoes) {
+        faturaStr += `  ${getPeca(apre).nome}: ${formatarMoeda(calcularTotalApresentacao(apre))} (${apre.audiencia} assentos)\n`;
+    }
+    faturaStr += `Valor total: ${formatarMoeda(calcularTotalFatura())}\n`;
+    faturaStr += `Créditos acumulados: ${calcularTotalCreditos()} \n`;
     return faturaStr;
 }
 
